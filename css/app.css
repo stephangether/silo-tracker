@@ -370,5 +370,6 @@ dialog::backdrop { background: rgba(0,0,0,.4); }
   display: grid; place-items: center;
   background: var(--gauge-bg); color: var(--accent);
 }
+.btn-move .icon { width: 22px; height: 22px; stroke-width: 2.75; }
 .btn-move:disabled { color: var(--line); cursor: default; }
 .btn-move:not(:disabled):active { opacity: 0.6; }

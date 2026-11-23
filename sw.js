@@ -1,6 +1,6 @@
 // Service Worker: Offline-Cache + Klick auf Mitteilung.
 // VERSION bei Releases erhöhen, damit alte Caches aufgeräumt werden.
-const VERSION = 'v1.4.0';
+const VERSION = 'v1.4.1';
 const CACHE = `silo-tracker-${VERSION}`;
 const ASSETS = [
   './',
@@ -40,7 +40,9 @@ self.addEventListener('fetch', (event) => {
   const isPage = req.mode === 'navigate';
   const key = isPage ? 'index.html' : req;
   event.respondWith(
-    fetch(isPage ? req : new Request(req, { cache: 'no-cache' }))
+    // no-cache auch für die Seite: sonst kann altes HTML (mit altem Icon-Sprite) aus dem
+    // HTTP-Cache (GitHub Pages: 10 min) auf neues JS treffen.
+    fetch(isPage ? new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : new Request(req, { cache: 'no-cache' }))
       .then((res) => {
         if (res.ok) {
           const copy = res.clone();

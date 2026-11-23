@@ -3,7 +3,7 @@ import { loadState, saveState, requestPersistence } from './store.js';
 import * as N from './notify.js';
 import { isInstalled, openInstallGuide, maybeShowInstallReminder } from './install.js';
 
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.4.1';
 let state = loadState();
 let reordering = false; // „Anordnen“-Modus der Silo-Liste
 const $app = document.getElementById('app');
@@ -119,7 +119,6 @@ function siloGauge(silo, big = false) {
 
 function sortBar(sortBy, count) {
   if (count < 2) return '';
-  const manual = sortBy === 'manual';
   return `
     <div class="sort-bar">
       <label class="sort-select">${icon('sort', 'icon-sm')}
@@ -127,7 +126,7 @@ function sortBar(sortBy, count) {
           ${Object.entries(L.SORT_MODES).map(([k, t]) => `<option value="${k}" ${k === sortBy ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </label>
-      ${manual ? `<button class="btn-text" type="button" id="reorder">${reordering ? '<strong>Fertig</strong>' : 'Anordnen'}</button>` : ''}
+      <button class="btn-text" type="button" id="reorder">${reordering ? '<strong>Fertig</strong>' : 'Anordnen'}</button>
     </div>`;
 }
 
@@ -201,6 +200,12 @@ function renderList() {
     renderList();
   });
   $app.querySelector('#reorder')?.addEventListener('click', () => {
+    if (sortBy !== 'manual') {
+      // Anordnen startet mit der gerade angezeigten Reihenfolge
+      state.silos = silos;
+      state.settings.sortBy = 'manual';
+      persist();
+    }
     reordering = !reordering;
     renderList();
   });
