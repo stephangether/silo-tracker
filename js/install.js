@@ -47,12 +47,12 @@ function iosSteps() {
     <ol class="steps">
       <li>
         <span class="step-icon">${icon('share')}</span>
-        <span>Tippe auf <b>Teilen</b>. In Safari ist das unten in der Leiste, in Chrome oben in der Adresszeile.
-        Siehst du es nicht, tippe zuerst auf ${icon('more', 'icon-sm')} <b>Mehr</b>.</span>
+        <span>Tippe in der Browserleiste auf <b>Teilen</b>.
+        Siehst du es nicht, tippe zuerst auf ${icon('more', 'icon-sm')}.</span>
       </li>
       <li>
         <span class="step-icon">${icon('home-add')}</span>
-        <span>Wähle <b>Zum Home-Bildschirm</b>. Eventuell musst du dafür in der Liste nach unten scrollen.</span>
+        <span>Wähle <b>Zum Home-Bildschirm</b> (ggf. in der Liste nach unten scrollen).</span>
       </li>
       <li>
         <span class="step-icon">${icon('check')}</span>
@@ -60,13 +60,12 @@ function iosSteps() {
       </li>
       <li>
         <span class="step-icon">${icon('phone')}</span>
-        <span>Öffne Silo-Tracker ab jetzt nur noch über das neue Symbol auf dem Home-Bildschirm.</span>
+        <span>Öffne Silo-Tracker ab jetzt über das neue Symbol auf dem Home-Bildschirm.</span>
       </li>
     </ol>
     <p class="note-box">
-      <b>Wichtig:</b> Safari und die installierte App speichern ihre Daten getrennt.
-      Hast du hier schon Silos angelegt, übertrage sie mit <i>Einstellungen → Sicherung exportieren</i>
-      und in der installierten App mit <i>Sicherung wiederherstellen</i>.
+      <b>Wichtig:</b> Browser und App speichern Daten getrennt. Schon angelegte Silos per
+      <i>Sicherung exportieren</i> und in der App per <i>Sicherung wiederherstellen</i> übertragen.
     </p>`;
 }
 
@@ -95,13 +94,12 @@ function otherSteps() {
 export function openInstallGuide({ reminder = false } = {}) {
   const dlg = document.getElementById('dialog');
   dlg.innerHTML = `
-    <div class="sheet" tabindex="-1" autofocus>
+    <div class="sheet ${isIOS() && !isStandalone() ? 'ios-browser' : ''}" tabindex="-1" autofocus>
       <div class="sheet-head">
         <h2>App installieren</h2>
         <button class="btn-close" type="button" id="install-close" aria-label="Schließen">${icon('close')}</button>
       </div>
-      <p class="muted">Installiert läuft Silo-Tracker wie eine normale App: im Vollbild, offline,
-        mit <b>Mitteilungen</b> bei Warnungen und der Anzahl der Warnungen am App-Symbol.</p>
+      <p class="muted">Als App bekommst du <b>Mitteilungen</b> bei Warnungen und nutzt Silo-Tracker im Vollbild und offline.</p>
       ${isIOS() ? iosSteps() : otherSteps()}
       <button class="btn block" type="button" id="install-later">${reminder ? 'Später erinnern' : 'Schließen'}</button>
     </div>`;
