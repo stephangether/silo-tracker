@@ -1,0 +1,11 @@
+{
+  "name": "silo-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "start": "node tools/serve.mjs",
+    "icons": "node tools/make-icons.mjs",
+    "sprite": "node tools/build-sprite.mjs"
+  }
+}
