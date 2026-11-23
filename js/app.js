@@ -3,8 +3,9 @@ import { loadState, saveState, requestPersistence } from './store.js';
 import * as N from './notify.js';
 import { isInstalled, openInstallGuide, maybeShowInstallReminder } from './install.js';
 
-const APP_VERSION = '1.3.2';
+const APP_VERSION = '1.4.0';
 let state = loadState();
+let reordering = false; // „Anordnen“-Modus der Silo-Liste
 const $app = document.getElementById('app');
 const $tabs = document.getElementById('tabs');
 
@@ -80,6 +81,7 @@ function render() {
   const tab = view === 'verlauf' ? 'verlauf' : view === 'einstellungen' ? 'einstellungen' : 'silos';
   $tabs.querySelectorAll('a').forEach((a) => a.classList.toggle('active', a.dataset.tab === tab));
   const silo = id ? state.silos.find((s) => s.id === id) : null;
+  if (view !== '') reordering = false;
 
   switch (view) {
     case 'silo':
@@ -115,8 +117,55 @@ function siloGauge(silo, big = false) {
     </div>`;
 }
 
+function sortBar(sortBy, count) {
+  if (count < 2) return '';
+  const manual = sortBy === 'manual';
+  return `
+    <div class="sort-bar">
+      <label class="sort-select">${icon('sort', 'icon-sm')}
+        <select id="sort" aria-label="Sortieren nach" ${reordering ? 'disabled' : ''}>
+          ${Object.entries(L.SORT_MODES).map(([k, t]) => `<option value="${k}" ${k === sortBy ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </label>
+      ${manual ? `<button class="btn-text" type="button" id="reorder">${reordering ? '<strong>Fertig</strong>' : 'Anordnen'}</button>` : ''}
+    </div>`;
+}
+
+function siloCard(s, i, count) {
+  const level = L.siloLevel(s);
+  const ed = L.emptyDate(s);
+  const body = `
+    ${siloGauge(s)}
+    <div class="card-body">
+      <div class="card-title">${esc(s.name)} ${s.alertsEnabled ? '' : `<span title="Warnungen aus">${icon('bell-off', 'icon-sm')}</span>`}</div>
+      <div class="card-stock">${fmt(s.stock)} / ${fmt(s.capacity)} ${s.unit}</div>
+      <div class="card-days lvl-text-${level}">${daysText(s)}${ed && s.stock > 0 ? ` · leer ${fmtDay(ed)}` : ''}</div>
+    </div>`;
+  if (reordering) {
+    return `
+    <li>
+      <div class="card">
+        ${body}
+        <span class="move">
+          <button type="button" class="btn-move" data-move="-1" data-id="${s.id}" aria-label="${esc(s.name)} nach oben" ${i === 0 ? 'disabled' : ''}>${icon('up')}</button>
+          <button type="button" class="btn-move" data-move="1" data-id="${s.id}" aria-label="${esc(s.name)} nach unten" ${i === count - 1 ? 'disabled' : ''}>${icon('down')}</button>
+        </span>
+      </div>
+    </li>`;
+  }
+  return `
+    <li>
+      <a class="card" href="#/silo/${s.id}">
+        ${body}
+        <span class="badge lvl-${level}">${LEVEL_TEXT[level]}</span>
+      </a>
+    </li>`;
+}
+
 function renderList() {
-  const silos = [...state.silos].sort((a, b) => L.remainingDays(a) - L.remainingDays(b));
+  const sortBy = L.SORT_MODES[state.settings.sortBy] ? state.settings.sortBy : 'days';
+  if (sortBy !== 'manual') reordering = false;
+  const silos = L.sortSilos(state.silos, sortBy);
   const warn = silos.filter((s) => s.alertsEnabled && L.siloLevel(s) !== 'ok');
   const installHint = isInstalled()
     ? ''
@@ -140,25 +189,31 @@ function renderList() {
         <p>Noch keine Silos angelegt.</p>
         <a class="btn primary" href="#/neu">Erstes Silo anlegen</a>
       </div>` : `
-      <ul class="cards">
-        ${silos.map((s) => {
-          const level = L.siloLevel(s);
-          const ed = L.emptyDate(s);
-          return `
-          <li>
-            <a class="card" href="#/silo/${s.id}">
-              ${siloGauge(s)}
-              <div class="card-body">
-                <div class="card-title">${esc(s.name)} ${s.alertsEnabled ? '' : `<span title="Warnungen aus">${icon('bell-off', 'icon-sm')}</span>`}</div>
-                <div class="card-stock">${fmt(s.stock)} / ${fmt(s.capacity)} ${s.unit}</div>
-                <div class="card-days lvl-text-${level}">${daysText(s)}${ed && s.stock > 0 ? ` · leer ${fmtDay(ed)}` : ''}</div>
-              </div>
-              <span class="badge lvl-${level}">${LEVEL_TEXT[level]}</span>
-            </a>
-          </li>`;
-        }).join('')}
+      ${sortBar(sortBy, silos.length)}
+      <ul class="cards ${reordering ? 'reordering' : ''}">
+        ${silos.map((s, i) => siloCard(s, i, silos.length)).join('')}
       </ul>`}
   `;
+
+  $app.querySelector('#sort')?.addEventListener('change', (e) => {
+    state.settings.sortBy = e.target.value;
+    persist();
+    renderList();
+  });
+  $app.querySelector('#reorder')?.addEventListener('click', () => {
+    reordering = !reordering;
+    renderList();
+  });
+  $app.querySelectorAll('[data-move]').forEach((btn) => {
+    btn.onclick = () => {
+      if (!L.moveSilo(state, btn.dataset.id, Number(btn.dataset.move))) return;
+      persist();
+      renderList();
+      // Fokus beim verschobenen Silo halten, damit man mehrmals tippen kann
+      const same = $app.querySelector(`[data-id="${btn.dataset.id}"][data-move="${btn.dataset.move}"]`);
+      (same && !same.disabled ? same : $app.querySelector(`[data-id="${btn.dataset.id}"]:not(:disabled)`))?.focus({ preventScroll: true });
+    };
+  });
 }
 
 function renderDetail(silo) {

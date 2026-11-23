@@ -348,3 +348,27 @@ dialog::backdrop { background: rgba(0,0,0,.4); }
 }
 .row .icon { color: var(--accent); }
 .sheet:focus { outline: none; }
+
+/* Sortierung der Silo-Liste */
+.sort-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 4px 4px 8px; min-height: 44px;
+}
+.sort-select { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
+.sort-select select {
+  appearance: none; -webkit-appearance: none; border: 0; background: none;
+  font: inherit; font-size: 17px; /* ≥16px verhindert Zoom auf iOS */
+  color: var(--accent); min-height: 44px; padding: 0; cursor: pointer;
+}
+.sort-select select:disabled { color: var(--muted); }
+.sort-bar .btn-text { appearance: none; border: 0; background: none; font: inherit; color: var(--accent); cursor: pointer; }
+.cards.reordering .card:active { opacity: 1; }
+.move { display: flex; flex-direction: column; gap: 4px; }
+.btn-move {
+  appearance: none; border: 0; cursor: pointer;
+  width: 44px; height: 30px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: var(--gauge-bg); color: var(--accent);
+}
+.btn-move:disabled { color: var(--line); cursor: default; }
+.btn-move:not(:disabled):active { opacity: 0.6; }

@@ -1,6 +1,6 @@
 // Service Worker: Offline-Cache + Klick auf Mitteilung.
 // VERSION bei Releases erhöhen, damit alte Caches aufgeräumt werden.
-const VERSION = 'v1.3.2';
+const VERSION = 'v1.4.0';
 const CACHE = `silo-tracker-${VERSION}`;
 const ASSETS = [
   './',

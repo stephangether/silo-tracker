@@ -98,3 +98,29 @@ test('Sicherung Roundtrip und Fehlerfälle', () => {
   assert.throws(() => L.parseBackup('nope'), /JSON/);
   assert.throws(() => L.parseBackup('{"a":1}'), /Silo-Tracker/);
 });
+
+test('sortSilos nach Futtertagen, Füllstand und Name', () => {
+  const a = L.newSilo({ ...base, name: 'Silo 10', stock: 10, dailyUsage: 1 }, '2026-11-23'); // 10 Tage, 50 %
+  const b = L.newSilo({ ...base, name: 'Silo 2', stock: 4, dailyUsage: 0 }, '2026-11-23'); // ∞ Tage, 20 %
+  const c = L.newSilo({ ...base, name: 'alpha', stock: 18, dailyUsage: 3 }, '2026-11-23'); // 6 Tage, 90 %
+  const d = L.newSilo({ ...base, name: 'Beta', stock: 6, dailyUsage: 0 }, '2026-11-23'); // ∞ Tage, 30 %
+  const names = (list) => list.map((s) => s.name);
+  const silos = [a, b, c, d];
+  assert.deepEqual(names(L.sortSilos(silos, 'days')), ['alpha', 'Silo 10', 'Beta', 'Silo 2']);
+  assert.deepEqual(names(L.sortSilos(silos, 'fill')), ['Silo 2', 'Beta', 'Silo 10', 'alpha']);
+  assert.deepEqual(names(L.sortSilos(silos, 'name')), ['alpha', 'Beta', 'Silo 2', 'Silo 10']);
+  assert.deepEqual(names(L.sortSilos(silos, 'manual')), ['Silo 10', 'Silo 2', 'alpha', 'Beta']);
+  assert.deepEqual(names(silos), ['Silo 10', 'Silo 2', 'alpha', 'Beta'], 'Original bleibt unverändert');
+});
+
+test('moveSilo verschiebt innerhalb der Grenzen', () => {
+  const st = L.createState();
+  st.silos = ['A', 'B', 'C'].map((name) => L.newSilo({ ...base, name }, '2026-11-23'));
+  const [a, , c] = st.silos;
+  assert.equal(L.moveSilo(st, c.id, -1), true);
+  assert.deepEqual(st.silos.map((s) => s.name), ['A', 'C', 'B']);
+  assert.equal(L.moveSilo(st, a.id, -1), false);
+  assert.equal(L.moveSilo(st, 'gibts-nicht', 1), false);
+  assert.equal(L.moveSilo(st, a.id, 2), true);
+  assert.deepEqual(st.silos.map((s) => s.name), ['C', 'B', 'A']);
+});

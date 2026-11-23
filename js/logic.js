@@ -35,7 +35,7 @@ export function round(n) {
 }
 
 export function createState() {
-  return { version: 1, silos: [], bookings: [], settings: { notifications: false, lastBackup: null } };
+  return { version: 1, silos: [], bookings: [], settings: { notifications: false, lastBackup: null, sortBy: 'days' } };
 }
 
 export function newSilo(input, today = dayKey()) {
@@ -95,6 +95,33 @@ export function siloLevel(silo) {
 export function fillPercent(silo) {
   if (!(silo.capacity > 0)) return 0;
   return Math.max(0, Math.min(100, (silo.stock / silo.capacity) * 100));
+}
+
+/** Sortierungen der Silo-Liste. 'manual' = Reihenfolge von state.silos. */
+export const SORT_MODES = { days: 'Futtertage', fill: 'Füllstand', name: 'Name', manual: 'Eigene Reihenfolge' };
+
+const byName = (a, b) => a.name.localeCompare(b.name, 'de', { numeric: true, sensitivity: 'base' });
+
+/** Gibt eine sortierte Kopie zurück; Gleichstand wird nach Name aufgelöst. */
+export function sortSilos(silos, mode = 'days') {
+  const list = [...silos];
+  if (mode === 'manual') return list;
+  if (mode === 'name') return list.sort(byName);
+  const key = mode === 'fill' ? fillPercent : remainingDays;
+  return list.sort((a, b) => {
+    const ka = key(a), kb = key(b);
+    return ka === kb ? byName(a, b) : ka - kb; // Infinity - Infinity wäre NaN
+  });
+}
+
+/** Verschiebt ein Silo in der eigenen Reihenfolge um delta Plätze. Gibt true zurück, wenn sich etwas geändert hat. */
+export function moveSilo(state, id, delta) {
+  const i = state.silos.findIndex((s) => s.id === id);
+  const j = i + delta;
+  if (i < 0 || j < 0 || j >= state.silos.length) return false;
+  const [s] = state.silos.splice(i, 1);
+  state.silos.splice(j, 0, s);
+  return true;
 }
 
 /** Fügt eine Buchung hinzu und hält den Verlauf in vernünftiger Größe. */

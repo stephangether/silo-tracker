@@ -24,6 +24,9 @@ const ICONS = {
   close: 'x',
   phone: 'smartphone',
   check: 'circle-check',
+  up: 'chevron-up',
+  down: 'chevron-down',
+  sort: 'arrow-down-up',
 };
 
 const base = `https://unpkg.com/lucide-static@${LUCIDE_VERSION}`;

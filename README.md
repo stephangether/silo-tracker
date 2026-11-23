@@ -11,6 +11,7 @@ Eine Progressive Web App (PWA) für die Landwirtschaft. Sie führt den Futterbes
   - Eine Korrektur setzt den tatsächlichen Bestand, z. B. nach einer Sichtprüfung.
 - **Gelbe und rote Warnschwelle pro Silo,** jeweils in verbleibenden Futtertagen.
 - **Warnungen pro Silo ein- und ausschaltbar.**
+- **Silo-Liste sortierbar** nach Futtertagen (Standard), Füllstand, Name oder in eigener Reihenfolge. Die eigene Reihenfolge legst du über „Anordnen“ mit Pfeil-Buttons fest. Die Auswahl bleibt gespeichert.
 - **Berechnung der verbleibenden Futtertage** und des Datums, an dem das Silo leer ist.
 - **Buchungsverlauf,** gesamt oder gefiltert nach Silo.
 - **Datensicherung:** Export und Import als JSON-Datei, auf dem iPhone über das Teilen-Menü, z. B. „In Dateien sichern“.
