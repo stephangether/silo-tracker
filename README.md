@@ -84,6 +84,15 @@ Ein neues Icon fügst du so hinzu:
 2. In `tools/build-sprite.mjs` unter `ICONS` eintragen.
 3. `npm run sprite` ausführen. Dafür braucht es Internet, das Skript lädt von unpkg.com.
 
+### iOS 26: Unschärfe am oberen Rand
+
+iOS 26 legt bei Web-Apps auf dem Home-Bildschirm eine Unschärfe über den oberen Rand. Vermieden wird sie mit zwei Maßnahmen:
+
+1. Statusleisten-Stil `default` statt `black-translucent` in `index.html`. Damit beginnt die Seite unterhalb einer deckenden Statusleiste.
+2. Am oberen Rand liegt eine **mitlaufende (sticky), vollbreite, einfarbige Kopfzeile** (`.bar`). WebKit übernimmt deren Farbe, statt den Inhalt zu verwischen.
+
+Die Kopfzeile darf deshalb keinen transparenten Hintergrund und kein `backdrop-filter` bekommen. iOS liest Statusleisten-Stil und Manifest beim Installieren. Nach Änderungen daran muss man die App vom Home-Bildschirm löschen und neu hinzufügen.
+
 ### Rechenregeln
 
 - **Resttage** = Bestand ÷ Verbrauch pro Tag. Bei Verbrauch 0 gilt der Bestand als unbegrenzt.

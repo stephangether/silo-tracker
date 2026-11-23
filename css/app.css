@@ -68,9 +68,13 @@ small { font-size: 13px; }
 .error { color: var(--red); min-height: 1em; margin: 8px 4px; font-size: 15px; }
 
 /* Kopfzeile */
+/* Kopfzeile: sticky, vollbreit, einfarbig. iOS 26 übernimmt deren Farbe für den oberen
+   Rand, statt den Inhalt dort zu verwischen (WebKit-Regel für fixed/sticky Elemente am Rand). */
 .bar {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  min-height: 56px; padding: 8px 0;
+  min-height: 56px; padding: 8px 16px; margin: 0 -16px;
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
 }
 .bar-title { font-size: 17px; font-weight: 600; }
 .btn-icon {

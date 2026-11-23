@@ -3,7 +3,7 @@ import { loadState, saveState, requestPersistence } from './store.js';
 import * as N from './notify.js';
 import { isInstalled, openInstallGuide, maybeShowInstallReminder } from './install.js';
 
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.3.2';
 let state = loadState();
 const $app = document.getElementById('app');
 const $tabs = document.getElementById('tabs');
